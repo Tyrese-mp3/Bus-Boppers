@@ -85,7 +85,8 @@ function setupMobileControls() {
         align-items: center;
         justify-content: center;
     `;
-    leftBtn.addEventListener('touchstart', () => {
+    leftBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
         if (lane > -1) {
             lane--;
             player.position.x = lane * laneWidth;
@@ -95,7 +96,8 @@ function setupMobileControls() {
     const rightBtn = document.createElement('button');
     rightBtn.textContent = '→';
     rightBtn.style.cssText = leftBtn.style.cssText;
-    rightBtn.addEventListener('touchstart', () => {
+    rightBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
         if (lane < 1) {
             lane++;
             player.position.x = lane * laneWidth;
@@ -115,17 +117,20 @@ function setupMobileControls() {
     const jumpBtn = document.createElement('button');
     jumpBtn.textContent = '↑';
     jumpBtn.style.cssText = leftBtn.style.cssText;
-    jumpBtn.addEventListener('touchstart', () => {
+    jumpBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
         if (!isJumping && !isSliding) {
             isJumping = true;
             jumpHeight = 0;
+            player.position.y = 0.5;
         }
     });
 
     const slideBtn = document.createElement('button');
     slideBtn.textContent = '↓';
     slideBtn.style.cssText = leftBtn.style.cssText;
-    slideBtn.addEventListener('touchstart', () => {
+    slideBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
         if (!isJumping && !isSliding) {
             isSliding = true;
             slideDuration = 0;
@@ -133,7 +138,8 @@ function setupMobileControls() {
             player.position.y = 0.25;
         }
     });
-    slideBtn.addEventListener('touchend', () => {
+    slideBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
         if (isSliding) {
             isSliding = false;
             player.scale.y = 1;
@@ -154,6 +160,20 @@ function setupMobileControls() {
         document.getElementById('startScreen').style.padding = '20px';
         document.getElementById('gameOver').style.padding = '20px';
     }
+
+    // Prevent default touch behaviors
+    document.addEventListener('touchmove', (e) => {
+        if (e.target.id === 'mobile-controls' || e.target.tagName === 'BUTTON') {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    // Handle touch events for game controls
+    const gameContainer = document.getElementById('gameContainer');
+    gameContainer.addEventListener('touchstart', (e) => {
+        if (!gameStarted || gameOver) return;
+        e.preventDefault();
+    }, { passive: false });
 }
 
 // Initialize game with mobile support
