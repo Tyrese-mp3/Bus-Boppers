@@ -48,7 +48,89 @@ let shopItems = {
     doubleCoins: { price: 200, purchased: false }
 };
 
-// Initialize game
+// Add mobile controls
+function setupMobileControls() {
+    const controls = document.createElement('div');
+    controls.id = 'mobile-controls';
+    controls.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 1000;
+        display: none;
+    `;
+
+    // Left controls (move left/right)
+    const leftControls = document.createElement('div');
+    leftControls.style.cssText = `
+        display: flex;
+        gap: 20px;
+    `;
+
+    const leftBtn = document.createElement('button');
+    leftBtn.textContent = '←';
+    leftBtn.style.cssText = `
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid white;
+        color: white;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    leftBtn.addEventListener('touchstart', () => moveLeft());
+    leftBtn.addEventListener('touchend', () => stopMoving());
+
+    const rightBtn = document.createElement('button');
+    rightBtn.textContent = '→';
+    rightBtn.style.cssText = leftBtn.style.cssText;
+    rightBtn.addEventListener('touchstart', () => moveRight());
+    rightBtn.addEventListener('touchend', () => stopMoving());
+
+    leftControls.appendChild(leftBtn);
+    leftControls.appendChild(rightBtn);
+
+    // Right controls (jump/slide)
+    const rightControls = document.createElement('div');
+    rightControls.style.cssText = `
+        display: flex;
+        gap: 20px;
+    `;
+
+    const jumpBtn = document.createElement('button');
+    jumpBtn.textContent = '↑';
+    jumpBtn.style.cssText = leftBtn.style.cssText;
+    jumpBtn.addEventListener('touchstart', () => jump());
+
+    const slideBtn = document.createElement('button');
+    slideBtn.textContent = '↓';
+    slideBtn.style.cssText = leftBtn.style.cssText;
+    slideBtn.addEventListener('touchstart', () => slide());
+    slideBtn.addEventListener('touchend', () => stopSliding());
+
+    rightControls.appendChild(jumpBtn);
+    rightControls.appendChild(slideBtn);
+
+    controls.appendChild(leftControls);
+    controls.appendChild(rightControls);
+    document.body.appendChild(controls);
+
+    // Show mobile controls on mobile devices
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        controls.style.display = 'flex';
+        document.getElementById('startScreen').style.padding = '20px';
+        document.getElementById('gameOver').style.padding = '20px';
+    }
+}
+
+// Initialize game with mobile support
 function init() {
     // Create new scene
     const newScene = new THREE.Scene();
@@ -184,6 +266,15 @@ function init() {
 
     // Start animation loop
     animate();
+
+    // Add mobile controls
+    setupMobileControls();
+
+    // Adjust camera for mobile
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        camera.position.set(0, 2, 5);
+        camera.lookAt(0, 1, 0);
+    }
 }
 
 // Call init when the window loads
@@ -1635,4 +1726,21 @@ function addStars(scene) {
         );
         scene.add(star);
     }
-} 
+}
+
+// Add touch event handlers
+document.addEventListener('DOMContentLoaded', () => {
+    // Prevent default touch behaviors
+    document.addEventListener('touchmove', (e) => {
+        if (e.target.id === 'mobile-controls' || e.target.tagName === 'BUTTON') {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    // Handle touch events for game controls
+    const gameContainer = document.getElementById('gameContainer');
+    gameContainer.addEventListener('touchstart', (e) => {
+        if (!gameStarted || gameOver) return;
+        e.preventDefault();
+    }, { passive: false });
+}); 
