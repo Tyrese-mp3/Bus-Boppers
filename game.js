@@ -85,14 +85,22 @@ function setupMobileControls() {
         align-items: center;
         justify-content: center;
     `;
-    leftBtn.addEventListener('touchstart', () => moveLeft());
-    leftBtn.addEventListener('touchend', () => stopMoving());
+    leftBtn.addEventListener('touchstart', () => {
+        if (lane > -1) {
+            lane--;
+            player.position.x = lane * laneWidth;
+        }
+    });
 
     const rightBtn = document.createElement('button');
     rightBtn.textContent = '→';
     rightBtn.style.cssText = leftBtn.style.cssText;
-    rightBtn.addEventListener('touchstart', () => moveRight());
-    rightBtn.addEventListener('touchend', () => stopMoving());
+    rightBtn.addEventListener('touchstart', () => {
+        if (lane < 1) {
+            lane++;
+            player.position.x = lane * laneWidth;
+        }
+    });
 
     leftControls.appendChild(leftBtn);
     leftControls.appendChild(rightBtn);
@@ -107,13 +115,31 @@ function setupMobileControls() {
     const jumpBtn = document.createElement('button');
     jumpBtn.textContent = '↑';
     jumpBtn.style.cssText = leftBtn.style.cssText;
-    jumpBtn.addEventListener('touchstart', () => jump());
+    jumpBtn.addEventListener('touchstart', () => {
+        if (!isJumping && !isSliding) {
+            isJumping = true;
+            jumpHeight = 0;
+        }
+    });
 
     const slideBtn = document.createElement('button');
     slideBtn.textContent = '↓';
     slideBtn.style.cssText = leftBtn.style.cssText;
-    slideBtn.addEventListener('touchstart', () => slide());
-    slideBtn.addEventListener('touchend', () => stopSliding());
+    slideBtn.addEventListener('touchstart', () => {
+        if (!isJumping && !isSliding) {
+            isSliding = true;
+            slideDuration = 0;
+            player.scale.y = 0.5;
+            player.position.y = 0.25;
+        }
+    });
+    slideBtn.addEventListener('touchend', () => {
+        if (isSliding) {
+            isSliding = false;
+            player.scale.y = 1;
+            player.position.y = 0.5;
+        }
+    });
 
     rightControls.appendChild(jumpBtn);
     rightControls.appendChild(slideBtn);
